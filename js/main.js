@@ -1,4 +1,4 @@
-var roundwareServerUrl = "http://roundware.dyndns.org/api/2";
+var roundwareServerUrl = "https://roundware.dyndns.org/api/2";
 var roundwareProjectId = 10;
 var playButton = $("#playbutton");
 var pauseButton = $("#pausebutton");
