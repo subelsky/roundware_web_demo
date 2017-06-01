@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+require "webrick"
+require "pathname"
+
+root = Pathname(__dir__).parent
+
+# Important to run this on port 8080 since that's what the Roundware Server CORS settings allow
+s = WEBrick::HTTPServer.new(Port: 8080,DocumentRoot: root) 
+
+trap('INT') do 
+  s.shutdown 
+end 
+
+puts "Starting Roundware demo on port 8080. Be sure to open url http://localhost:8080 - other hostnames will not work due to CORS restricts on the roundware server"
+
+s.start
