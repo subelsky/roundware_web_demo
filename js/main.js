@@ -1,5 +1,14 @@
-var roundwareServerUrl = "https://roundware.dyndns.org/api/2";
-var roundwareProjectId = 10;
+var hostname = window.location.hostname;
+var roundwareServerUrl;
+
+if (hostname !== "localhost" || window.location.search.match(/live=true/)) {
+  roundwareServerUrl = "https://roundware.dyndns.org/api/2";
+} else {
+  // In development mode, use a locally-running Roundware server, see https://github.com/roundware/roundware-server#vagrant
+  roundwareServerUrl = "//" + hostname + ":8888/api/2";
+}
+
+var roundwareProjectId = 1;
 var playButton = $("#playbutton");
 var pauseButton = $("#pausebutton");
 var spinner = $("#spinner");
@@ -40,10 +49,10 @@ function handleListening(streamURL) {
   playButton.click(function playButtonClicked() { sound.play(); });
 }
 
-function handleListeningFailure(userErrMsg,techErrMsg) {
-  console.error("Roundware Start Error",userErrMsg,techErrMsg);
+// Uses "swal", the sweetalert convenience function
+function handleListeningFailure(userErrMsg) {
+  spinner.hide();
 
-  // swal == sweetalert convenience function
   swal({
     title: "Unable to start Roundware",
     text: userErrMsg,
@@ -53,6 +62,8 @@ function handleListeningFailure(userErrMsg,techErrMsg) {
 }
 
 $(function startApp() {
+  spinner.show();
+
   roundware.start().
     then(handleListening).
     catch(handleListeningFailure);
