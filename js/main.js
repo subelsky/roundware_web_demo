@@ -9,48 +9,57 @@ if (hostname !== "localhost" || window.location.search.match(/live=true/)) {
 }
 
 var roundwareProjectId = 1;
-var playButton = $("#playbutton");
-var pauseButton = $("#pausebutton");
-var spinner = $("#spinner");
-var tagIds = $("#tag_ids");
+var playButton, pauseButton, spinner, tagIds, sound;
 
-var roundware = new Roundware({
+var roundware = new Roundware(window,{
   serverUrl: roundwareServerUrl,
   projectId: roundwareProjectId
 });
 
-function handleListening(streamURL) {
-  console.info("Starting to listen to " + streamURL);
+  
+function firstTimePlaying(streamURL) {
+  spinner.show();
+  console.info("Loading " + streamURL);
 
-  var sound = new Howl({
+  sound = new Howl({
     src: [streamURL],
     autoplay: true,
     html5: true
   });
 
-  window.sound = sound;
-
   sound.on('play',function handlePlayStart() {
-    // roundware.play(); TODO not implemented yet
-    pauseButton.removeAttr("disabled");
-    playButton.attr("disabled","disabled");
+    spinner.remove();
+    console.info("Playing");
   });
 
-  sound.on('pause',function handlePlayPause() {
-    // roundware.pause(); TODO not implemented yet
-    pauseButton.attr("disabled","disabled");
-    playButton.removeAttr("disabled");
+
+  sound.on('pause',function handlePlayPause() { 
+    console.info("Pausing");
   });
 
   spinner.remove();
-  sound.play();
 
-  pauseButton.click(function pauseButtonClicked() { sound.pause(); });
-  playButton.click(function playButtonClicked() { sound.play(); });
+  tagIds.change(function(evt) {
+    roundware.tags(tagIds.val().join(","));
+  });
+}
+
+function play() {
+  enablePauseControls();
+
+  roundware.play(firstTimePlaying).
+    then(function() { 
+      sound.play(); 
+    });
+}
+
+function pause() {
+  enablePlayControls();
+  sound.pause();
 }
 
 // Uses "swal", the sweetalert convenience function
-function handleListeningFailure(userErrMsg) {
+function handleError(userErrMsg) {
   spinner.hide();
 
   swal({
@@ -61,14 +70,30 @@ function handleListeningFailure(userErrMsg) {
   });
 }
 
+function enablePlayControls() {
+  playButton.removeAttr("disabled");
+  pauseButton.prop("disabled",true);
+}
+
+function enablePauseControls() {
+  playButton.attr("disabled",true);
+  pauseButton.removeAttr("disabled");
+}
+
+function ready() {
+  pauseButton.click(pause);
+  playButton.click(play);
+  enablePlayControls();
+}
+
 $(function startApp() {
-  spinner.show();
+  playButton = $("#playbutton");
+  pauseButton = $("#pausebutton");
+  spinner = $("#spinner");
+  tagIds = $("#tag_ids");
 
-  roundware.start().
-    then(handleListening).
-    catch(handleListeningFailure);
-
-  tagIds.change(function(evt) {
-    roundware.tags(tagIds.val().join(","));
-  });
+  roundware.
+    connect().
+    then(ready).
+    catch(handleError);
 });

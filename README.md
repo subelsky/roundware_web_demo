@@ -11,7 +11,7 @@ Demonstration site for [Roundware Server](https://github.com/roundware/roundware
 ```bash
 git clone https://github.com/subelsky/roundware_web_demo
 cd roundware_web_demo
-bin/serve && open http://localhost:8080
+bin/server && open http://localhost:8080
 ```
 
 # Projects Used
