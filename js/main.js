@@ -92,8 +92,7 @@ $(function startApp() {
   spinner = $("#spinner");
   tagIds = $("#tag_ids");
 
-  roundware.
-    connect().
+  roundware.connect().
     then(ready).
-    catch(handleError);
+    fail(handleError);
 });
